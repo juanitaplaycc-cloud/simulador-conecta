@@ -1,686 +1,443 @@
-/*
-   Proyecto: CONECTA
-   Simulador de gestion de servicios de telecomunicaciones.
-   
-   Objetivo:
-   Administrar un catalogo de servicios utilizando:
-   Arrays y objetos
-   Funciones
-   Manipulacion del DOM
-   innerHTML y template strings
-   eventos con con addEventListener
-   metodos map(), filter() y reduce().
-   */
+/* ==========================================================
+   CONECTA · Simulador de planes de telecomunicaciones
+   Interfaz dinámica con DOM y eventos
+   ========================================================== */
 
-   /* Modelo de datos
-   Array principal que almacena los servicios.
-   Cada servicio es un objeto con sus propiedades */
+"use strict";
 
-   let planes = [
-    {
-        id: 1,
-        nombre: "Fibra esencial",
-        tipo: "Internet",
-        precio: 59900,
-        descripcion: "Conexion estable para navegar y tabajar",
-        disponible: true,
-        favorito: false
-    },
-    {
-        id: 2,
-        nombre: "Fibra Ultra",
-        tipo: "Internet",
-        precio: 89900,
-        descripcion: "Alta velocidad para hogares conectados.",
-        disponible: true,
-        favorito: true
-    },
-    {
-        id: 3,
-        nombre: "Voz Total",
-        tipo: "Telefonia",
-        precio: "32900",
-        descripcion: "Comunicacion nacional con minutos ilimitados.",
-        disponible: true,
-        favorito: false
-    },
+/* ---------- 1. Datos (array de objetos) ---------- */
 
-    {
-        id:4,
-        nombre: "TV Entretenimiento",
-        tipo: "Television",
-        precio: "74900",
-        descripcion: "Entretenimiento para todos los integrantes del hogar.",
-        disponible: false,
-        favorito: false
-    },
-    {
-        id: 5,
-        nombre:"Conecta HOGAR",
-        tipo:"Combo",
-        precio:"129900",
-        descripcion:"Internet de alta velocidad y television en un solo plan.",
-        disponible: true,
-        favorito: true
-    },
-    {
-    id: 6,
-    nombre: "Fibra Familiar",
-    tipo:"Internet",
-    precio:"69900",
-    descripcion:"Una conexion pensada para toda la familia.",
-    disponible: true,
-    favorito: false
-    }
+const servicios = [
+  { id: 1, 
+    nombre: "Fibra Hogar 300", 
+    categoria: "Internet", 
+    detalle: "300 Mbps simétricos con router WiFi 6.", 
+    precio: 89900, 
+    contratado: false 
+},
+  { id: 2, 
+    nombre: "Fibra Gamer 900", 
+    categoria: "Internet", 
+    detalle: "900 Mbps, baja latencia y IP prioritaria.", 
+    precio: 139900, 
+    contratado: false
+ },
+  { id: 3, 
+    nombre: "Móvil 20 GB", 
+    categoria: "Móvil", 
+    detalle: "20 GB de datos, minutos y SMS ilimitados.", 
+    precio: 39900, 
+    contratado: false 
+},
+  { id: 4, 
+    nombre: "Móvil Ilimitado", 
+    categoria: "Móvil", 
+    detalle: "Datos ilimitados y 5G donde haya cobertura.", 
+    precio: 69900, 
+    contratado: false
+ },
+  { id: 5, 
+    nombre: "TV Básica", 
+    categoria: "TV", 
+    detalle: "80 canales en HD y guía de programación.", 
+    precio: 34900, 
+    contratado: false 
+},
+  { id: 6, 
+    nombre: "TV Premium", 
+    categoria: "TV", 
+    detalle: "160 canales, deportes y 2 plataformas de streaming.", 
+    precio: 59900, 
+    contratado: false 
+},
+  { id: 7, 
+    nombre: "Combo Hogar", 
+    categoria: "Combo", 
+    detalle: "Internet 300 Mbps + TV Básica.", 
+    precio: 109900, 
+    contratado: false 
+},
+  { id: 8, 
+    nombre: "Combo Total", 
+    categoria: "Combo", 
+    detalle: "Internet 900 Mbps + Móvil Ilimitado + TV Premium.", 
+    precio: 229900, 
+    contratado: false 
+},
 ];
 
-/**
- Seleccion del elemento DOM
- Se guardan referencias a los elementos HTML que 
- JavaScript necesita consultar o modificar. 
- */
-
- //Contenedor principal de las tarjetas
- const contenedorPlanes = document.getElementById("contenedor-planes");
-
- //Elementos de busqueda y filtrado
- const buscador = document.getElementById("buscador");
- const filtroCategoria = document.getElementById("filtro-categoria");
- const filtroEstado = document.getElementById("filtro-estado");
-
- const botonReiniciarBusqueda = document.getElementById("reiniciar-busqueda");
-
- //Elementos del formulario
- const formulario = document.getElementById("formulario-plan");
- const campoNombre = document.getElementById("nombre");
- const campoTipo = document.getElementById("tipo");
- const campoPrecio = document.getElementById("precio");
- const campoDescripcion = document.getElementById("descripcion");
- const campoDisponible = document.getElementById("disponible");
-
- //Elementos de estadisticas
- const totalPlanes = document.getElementById("total-planes");
- const planesDisponibles = document.getElementById("planes-disponibles");
- const planesNoDisponibles = document.getElementById("planes-no-disponibles");
- const totalFavoritos = document.getElementById("total-favoritos");
-
- //Elementos de informacion y mensaje 
- const estadoVacio = document.getElementById("estado-vacio");
- const contadorResultados = document.getElementById("contador-resultados");
- const mensajeToast = document.getElementById("mensaje-toast");
- const textoToast = document.getElementById("texto-toast");
-
- // Botones auxiliares
- const botonLimpiarFiltros = document.getElementById("limpiar-filtros");
- const botonReinniciarBusqueda = document.getElementById("reiniciar-busqueda");
-
- /** Variables  de control y funciones utilitarias */
-
- //Identificador incremental para los nuevos servicios
- let siguienteId = Math.max(...planes.map(plan => plan.id)) + 1;
-
- //Referencia al temporizador del mensaje
- let temporizadorToast;
-
- //Convierte un numero en formato de moneda colombiana
- function formatoCOP(valor) {
-    return new  Intl.NumberFormat("es-CO", {
-        style:"currency",
-        currency: "COP",
-        maximumFractionDigits: 0
-    }).format(valor);
- }
-
- //Escapa caracteres especiales para evitar que los datos
- //Ingresados por el usuario se interpreten como codigo HTML
- function escaparHTML(valor) {
-    return String(valor).replace(/[&<>"']/g, caracter => {
-        const caracteres ={
-              "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#039;"
-        };
-
-        return caracteres[caracter];
-        });
-    }
-    //Normaliza los nombres de categoria para construir
-    //clases CSS sin problemas con tildes o caracteres especiales
-    function normalizarCategoria(categoria) {
-        return categoria
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
- }
-
- /**
-  * Actualizacion de estadisticas
-  * Calcula los datos del catalogo y los muestra en pantalla
-  */
-
- function actualizarEstadisticas() {
-
-    //Cantidad total de servicios registrados
-    const cantidadTotal = planes.length;
-
-    //Cuenta los servicios que estan disponibles
-    const cantidadDisponibles = planes.filter(
-        plan => plan.disponible
-    ).length;
-
-    //Cuenta los servicios que no estan disponibles
-    const cantidadNoDisponibles = planes.filter(
-        plan => !plan.disponible
-    ).length;
-
-    //Cuenta los servicios marcados como favoritos
-    const cantidadFavoritos = planes.filter(
-        plan => plan.favorito
-    ).length;
-
-    //Actualiza los valores directamente en el DOM
-    totalPlanes.textContent = cantidadTotal;
-    planesDisponibles.textContent = cantidadDisponibles;
-    planesNoDisponibles.textContent = cantidadNoDisponibles;
-    totalFavoritos.textContent =cantidadFavoritos;
- }
-
- /* 
- Filtrado de servicios
- Combina la busqueda por texto con los filtros
- de categoria y disponibilidad */
-
- function obtenerPlanesFiltrados() {
-
-    //Obtienelos valores actuales de los controles.
-
-    const textoBusqueda = buscador.value.trim().toLowerCase();
-    const categoriaSeleccionada = filtroCategoria.value;
-    const estadoSeleccionado = filtroEstado.value;
-
-
-    //filter() crea una nueva coleccion sin modificar
-    //el array original
-    return planes.filter(plan => {
-
-        //Comprueba si el nombre o la descripcion 
-        // contiene el texto escrito en el buscador
-
-        const coincideTexto =
-        plan.nombre.toLowerCase().includes(textoBusqueda) ||
-        plan.descripcion.toLowerCase().includes(textoBusqueda);
-
-        // Coprueba si coincide con la categoria seleccionada
-        const coincideCategoria =
-        categoriaSeleccionada === "todos" ||
-        plan.tipo === categoriaSeleccionada;
-
-        //Comprueba si coincide con el estado seleccionado
-        let coincideEstado = true;
-
-        if (estadoSeleccionado === "disponible") {
-            coincideEstado = plan.disponible;
-        } else if (estadoSeleccionado ==="no-disponible") {
-            coincideEstado = !plan.disponible;
-        }
-
-        //El servicio debe cumplir todos los criterios
-        return coincideTexto && coincideCategoria && coincideEstado;
-    });
- }
-
- /** Renderizado Dinamico del Catalogo
-  * Recorre los servicios y genera las tarjetas mediante
-  * map(), template strings e innerHTML
-  */
-
- function renderizarPlanes() {
-     //Obtiene los servicios que cumplen los filtros
-     const planesFiltrados = obtenerPlanesFiltrados();
-
-     //Actualiza el contador de resultados
-     contadorResultados.textContent =
-     `  Mostrando ${planesFiltrados.length} de ${planes.lenght} servicios`;
-
-     // Controla la visibilidad del catalogo y del estado vacio
-     const hayResultados =planesFiltrados.lenght > 0;
-
-     contenedorPlanes.hidden = !hayResultados;
-     estadoVacio.hidden = hayResultados;
-
-     //Si no existen resultados, limpia el contenedor
-     if (!hayResultados) {
-        contenedorPlanes.innerHTML = "";
-        return;
-     }
-
-     //map() transforma cada objeto en una tarjeta HTML
-     //join() une todas las tarjetas en una sola cadena
-     const tarjetasHTML = planesFiltrados.map(plan => {
-
-        //Prepara los datos para mostrarlos de forma segura
-        const nombre = escaparHTML(plan.nombre);
-        const tipo = escaparHTML(plan.tipo);
-        const descripcion = escaparHTML(plan.decripcion);
-
-        // Define los textos y clases segun el estado
-        const textoEstado   = plan.disponible
-        ? "Disponible"
-        : "No disponible";
-
-        const claseEstado = plan.disponible
-        ? "available"
-        : "unavailable";
-
-        const claseCategoria = normalizarCategoria(plan.tipo);
-
-        //Genera el contenido HTML de cada tarjeta
-        return `
-        <article class=plan-card ${plan.favorito ? "favorite" : ""}"
-        data-id="${plan.id}">
-        
-        <div class="plan-top">
-
-        <span class="category-tag ${claseCategoria}">
-        ${tipo}
-        </span>
-
-        <button
-        type="button"
-        class=favorite-button ${plan.favorito ? "is-favorite" : ""}"
-        data-accion="favorito"
-        data-id="${plan.id}"
-        aria-label="${plan.favorito ? "Quitar de favoritos" : "Agregar a favoritos"}"
-        aria-pressed="${plan.favorito}"
-        title="${plan.favorito ? "Quitar de favoritos" : "Agregar a favoritos"}">
-        
-        <i class="fa-solid fa-star"></i>
-        </button>
-        
-        <h3 class="plan-name">${nombre}</h3>
-        <p class="plan-description">${description}</p>
-
-        <div class="plan-price">
-        ${formatoCOP(plan.precio)}
-        <small>/ mes </small>
-        </div>
-
-        <hr class="plan-divider">
-        <span class="plan-status ${claseEstado}">
-        ${textoEstado}
-        </span>
-
-        <div class="plan-actions">
-
-        <button
-        type="button"
-        class="plan-action-button"
-        data-accion="estado"
-        data-id="${plan.id}">
-
-        <i class="fa-solid fa-arrows-rotate"></i>
-        Cambiar estado
-        </button>
-
-        <button
-        type="button"
-        class="plan-action-button delete"
-        data-accion="eliminar"
-        data-id="${plan.id}">
-
-        <i class="fa-solid fa-trash"></i>
-        Eliminar
-        </button>
-        </div>
-        </article>
-
-        `;
-     }).join("");
-
-     // Inserta todas las tarjetas generadas dentro del DOM
-        contenedorPlanes.innerHTML = tarjetasHTML;
-
-    }
-
-    /**Mensajes de feedback visual 
-     * Muestra confirmaciones sin utilizar alert()
-     */
-
-    function mostrarMensaje(mensaje) {
-        //cambia el texto del mensaje
-        textoToast.textContent = mensaje;
-
-        //Muestra el mensaje agregando la clase CSS
-            mensajeToast.classList.add("show");
-
-            //Evita acumular temporizadores anteriores
-            clearTimeout(temporizadorToast);
-
-            //Oculta el mensaje despues de tres segundos
-            temporizadorToast = setTimeout(() => {
-                mensajeToast.classList.remove("show");
-                
-            }, 3000);
-    }
-
-    /* Validacion del formulario
-    Comprueba que los campos tengan informacion correcta
-*/
-
-//Limpia los mensajes de error anteriores
-function limpiarErrores() {
-
-    const  grupos = document.querySelectorAll(".form-group");
-    const errores = document.querySelectorAll(".field-error");
-
-    grupos.forEach(grupo => {
-        grupo.classList.remove("invalid");
-    });
-
-    errores.forEach(error => {
-        error.textContent = "";
-    });
+const MIN_SERVICIOS_DESCUENTO = 3;
+const PORCENTAJE_DESCUENTO = 0.1;
+const DURACION_TOAST_MS = 5000;
+
+const CLASE_CATEGORIA = {
+  Internet: "internet",
+  "Móvil": "movil",
+  TV: "tv",
+  Combo: "combo",
+};
+
+/* ---------- 2. Estado ---------- */
+
+let siguienteId = Math.max(...servicios.map((s) => s.id)) + 1;
+let categoriaActiva = "Todos";
+let textoBusqueda = "";
+let ultimoEliminado = null;
+
+/* ---------- 3. Selección de elementos del DOM ---------- */
+
+const contenedor = document.getElementById("contenedor-servicios");
+const buscador = document.getElementById("buscador");
+const filtros = document.getElementById("filtros");
+const contador = document.getElementById("contador");
+
+const formulario = document.getElementById("form-servicio");
+const inputNombre = document.getElementById("input-nombre");
+const inputCategoria = document.getElementById("input-categoria");
+const inputPrecio = document.getElementById("input-precio");
+const inputDetalle = document.getElementById("input-detalle");
+const errorFormulario = document.getElementById("form-error");
+
+const listaPlan = document.getElementById("lista-plan");
+const planVacio = document.getElementById("plan-vacio");
+const planSubtotal = document.getElementById("plan-subtotal");
+const planFilaDescuento = document.getElementById("plan-fila-descuento");
+const planDescuento = document.getElementById("plan-descuento");
+const planTotal = document.getElementById("plan-total");
+const planAyuda = document.getElementById("plan-ayuda");
+const botonVaciar = document.getElementById("btn-vaciar");
+
+const statTotal = document.getElementById("stat-total");
+const statContratados = document.getElementById("stat-contratados");
+const statMensual = document.getElementById("stat-mensual");
+const statPromedio = document.getElementById("stat-promedio");
+
+const contenedorToasts = document.getElementById("toasts");
+
+/* ---------- 4. Utilidades ---------- */
+
+const formatearPesos = (valor) =>
+  new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(valor);
+
+// Evita que el texto escrito por el usuario se interprete como HTML.
+const escaparHTML = (texto) =>
+  String(texto).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// Minúsculas y sin tildes, para que "movil" encuentre "Móvil".
+const normalizar = (texto) =>
+  String(texto).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+/* ---------- 5. Cálculos ---------- */
+
+function calcularPlan() {
+  const contratados = servicios.filter((s) => s.contratado);
+  const subtotal = contratados.reduce((acumulado, s) => acumulado + s.precio, 0);
+  const aplicaDescuento = contratados.length >= MIN_SERVICIOS_DESCUENTO;
+  const descuento = aplicaDescuento ? Math.round(subtotal * PORCENTAJE_DESCUENTO) : 0;
+  return { contratados, subtotal, descuento, total: subtotal - descuento, aplicaDescuento };
 }
 
-
-// Muestra el error correspondiente a un campo.
-function mostrarError(campo, mensaje) {
-
-    const grupo = campo.closest(".form-group");
-    const error = document.getElementById(`error-${campo.id}`);
-
-    grupo.classList.add("invalid");
-    error.textContent = mensaje;
+function obtenerServiciosFiltrados() {
+  const busqueda = normalizar(textoBusqueda.trim());
+  return servicios.filter((s) => {
+    const coincideCategoria = categoriaActiva === "Todos" || s.categoria === categoriaActiva;
+    const coincideTexto = normalizar(`${s.nombre} ${s.detalle} ${s.categoria}`).includes(busqueda);
+    return coincideCategoria && coincideTexto;
+  });
 }
 
+/* ---------- 6. Renderizado dinámico ---------- */
 
-// Valida los datos antes de registrar un nuevo servicio.
-function validarFormulario() {
+function crearTarjeta(servicio, idResaltado) {
+  const clases = ["tarjeta"];
+  if (servicio.contratado) clases.push("tarjeta--en-plan");
+  if (servicio.id === idResaltado) clases.push("tarjeta--nueva");
 
-    limpiarErrores();
-
-    let formularioValido = true;
-
-    const nombre = campoNombre.value.trim();
-    const tipo = campoTipo.value;
-    const precio = Number(campoPrecio.value);
-    const descripcion = campoDescripcion.value.trim();
-
-    // Validación del nombre.
-    if (nombre.length < 3) {
-        mostrarError(
-            campoNombre,
-            "El nombre debe tener al menos 3 caracteres."
-        );
-
-        formularioValido = false;
-    }
-
-    // Validación de la categoría.
-    if (!tipo) {
-        mostrarError(
-            campoTipo,
-            "Selecciona una categoría."
-        );
-
-        formularioValido = false;
-    }
-
-    // Validación del precio.
-    if (
-        campoPrecio.value.trim() === "" ||
-        !Number.isFinite(precio) ||
-        precio < 1000 ||
-        precio > 100000000
-    ) {
-        mostrarError(
-            campoPrecio,
-            "Ingresa un precio entre $1.000 y $100.000.000."
-        );
-
-        formularioValido = false;
-    }
-
-    // Validación de la descripción.
-    if (descripcion.length < 10) {
-        mostrarError(
-            campoDescripcion,
-            "La descripción debe tener al menos 10 caracteres."
-        );
-
-        formularioValido = false;
-    }
-
-    return formularioValido;
+  return `
+    <article class="${clases.join(" ")}" data-id="${servicio.id}">
+      <span class="etiqueta etiqueta--${CLASE_CATEGORIA[servicio.categoria] || "internet"}">${escaparHTML(servicio.categoria)}</span>
+      <h3 class="tarjeta__nombre">${escaparHTML(servicio.nombre)}</h3>
+      <p class="tarjeta__detalle">${escaparHTML(servicio.detalle)}</p>
+      <p class="tarjeta__precio">${formatearPesos(servicio.precio)}<span class="tarjeta__periodo">/mes</span></p>
+      <div class="tarjeta__acciones">
+        <button type="button" class="boton ${servicio.contratado ? "boton--oscuro" : ""}" data-accion="alternar">
+          ${servicio.contratado ? "Quitar de mi plan" : "Agregar a mi plan"}
+        </button>
+        <button type="button" class="boton boton--peligro" data-accion="eliminar" aria-label="Eliminar ${escaparHTML(servicio.nombre)}">
+          Eliminar
+        </button>
+      </div>
+    </article>`;
 }
 
+function renderizarServicios(idResaltado = null) {
+  const filtrados = obtenerServiciosFiltrados();
+  const hayResultados = filtrados.length > 0;
 
-/*  Registro de nuevos servicios
-   El evento submit permite agregar un objeto al array
-   sin recargar la página.*/
-   
-formulario.addEventListener("submit", function(evento) {
+  contador.textContent = `${filtrados.length} de ${servicios.length} servicios`;
 
-    // Evita que el navegador recargue la página.
-    evento.preventDefault();
+  contenedor.innerHTML = hayResultados
+    ? filtrados.map((servicio) => crearTarjeta(servicio, idResaltado)).join("")
+    : `<div class="vacio">
+         <p>No encontramos servicios con esos filtros.</p>
+         <button type="button" class="boton boton--borde" data-accion="limpiar-filtros">Limpiar filtros</button>
+       </div>`;
+}
 
-    // Detiene el registro si existen errores.
-    if (!validarFormulario()) {
-        mostrarMensaje("Revisa los campos del formulario.");
-        return;
-    }
+function renderizarPlan() {
+  const plan = calcularPlan();
+  const hayServicios = plan.contratados.length > 0;
 
-    // Construye un nuevo objeto con los datos ingresados.
-    const nuevoPlan = {
-        id: siguienteId,
-        nombre: campoNombre.value.trim(),
-        tipo: campoTipo.value,
-        precio: Number(campoPrecio.value),
-        descripcion: campoDescripcion.value.trim(),
-        disponible: campoDisponible.checked,
-        favorito: false
-    };
+  listaPlan.innerHTML = plan.contratados
+    .map(
+      (s) => `
+      <li class="plan__item">
+        <span class="plan__nombre">${escaparHTML(s.nombre)}</span>
+        <span class="plan__precio">${formatearPesos(s.precio)}</span>
+        <button type="button" class="plan__quitar" data-accion="quitar" data-id="${s.id}" aria-label="Quitar ${escaparHTML(s.nombre)} de mi plan">✕</button>
+      </li>`
+    )
+    .join("");
 
-    // Agrega el objeto al array principal.
-    planes.push(nuevoPlan);
+  planVacio.hidden = hayServicios;
+  planFilaDescuento.hidden = !plan.aplicaDescuento;
+  planSubtotal.textContent = formatearPesos(plan.subtotal);
+  planDescuento.textContent = `- ${formatearPesos(plan.descuento)}`;
+  planTotal.textContent = formatearPesos(plan.total);
+  botonVaciar.disabled = !hayServicios;
 
-    // Incrementa el identificador para el próximo registro.
-    siguienteId++;
+  const faltan = MIN_SERVICIOS_DESCUENTO - plan.contratados.length;
+  if (plan.aplicaDescuento) {
+    planAyuda.textContent = "Tienes 10% de descuento por contratar 3 servicios o más.";
+  } else if (hayServicios) {
+    planAyuda.textContent = `Agrega ${faltan} servicio${faltan === 1 ? "" : "s"} más y obtén 10% de descuento.`;
+  } else {
+    planAyuda.textContent = `Contrata ${MIN_SERVICIOS_DESCUENTO} servicios o más y obtén 10% de descuento.`;
+  }
+}
 
-    // Limpia los campos del formulario.
-    formulario.reset();
+function renderizarEstadisticas() {
+  const plan = calcularPlan();
+  const promedio = servicios.length
+    ? Math.round(servicios.reduce((acumulado, s) => acumulado + s.precio, 0) / servicios.length)
+    : 0;
 
-    // Elimina los posibles mensajes de validación.
-    limpiarErrores();
+  statTotal.textContent = String(servicios.length);
+  statContratados.textContent = String(plan.contratados.length);
+  statMensual.textContent = formatearPesos(plan.total);
+  statPromedio.textContent = formatearPesos(promedio);
+}
 
-    // Actualiza las estadísticas y el catálogo.
-    actualizarEstadisticas();
-    renderizarPlanes();
+// Cada vez que el array cambia, se vuelve a dibujar toda la interfaz.
+function actualizarVista(idResaltado = null) {
+  renderizarServicios(idResaltado);
+  renderizarPlan();
+  renderizarEstadisticas();
+}
 
-    // Informa al usuario que el registro fue exitoso.
-    mostrarMensaje("El servicio se registró correctamente.");
+function marcarFiltroActivo() {
+  filtros.querySelectorAll(".filtro").forEach((boton) => {
+    boton.setAttribute("aria-pressed", String(boton.dataset.categoria === categoriaActiva));
+  });
+}
 
-    // Lleva al usuario al catálogo para visualizar el nuevo plan.
-    document.getElementById("catalogo").scrollIntoView({
-        behavior: "smooth"
-    });
-});
+/* ---------- 7. Feedback visual (avisos en pantalla) ---------- */
 
+function mostrarToast(texto, tipo = "exito", accion = null) {
+  const toast = document.createElement("div");
+  toast.className = `toast toast--${tipo}`;
 
-/*  Interacciones con las tarjetas
-   Se utiliza delegación de eventos: un solo listener
-   controla los botones de todas las tarjetas. */
-contenedorPlanes.addEventListener("click", function(evento) {
+  const mensaje = document.createElement("span");
+  mensaje.textContent = texto;
+  toast.appendChild(mensaje);
 
-    // Identifica el botón que recibió el clic.
-    const boton = evento.target.closest("button[data-accion]");
+  if (accion) {
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "toast__accion";
+    boton.dataset.accion = accion.clave;
+    boton.textContent = accion.texto;
+    toast.appendChild(boton);
+  }
 
-    // Si el clic no fue sobre un botón, no hace nada.
-    if (!boton) {
-        return;
-    }
+  contenedorToasts.appendChild(toast);
+  setTimeout(() => toast.remove(), DURACION_TOAST_MS);
+}
 
-    // Obtiene la acción y el identificador del servicio.
-    const accion = boton.dataset.accion;
-    const id = Number(boton.dataset.id);
+function mostrarErrorFormulario(mensaje) {
+  errorFormulario.textContent = mensaje;
+  errorFormulario.hidden = false;
+}
 
-    // Busca el objeto correspondiente en el array.
-    const planSeleccionado = planes.find(plan => plan.id === id);
+function ocultarErrorFormulario() {
+  errorFormulario.textContent = "";
+  errorFormulario.hidden = true;
+}
 
-    // Comprueba que el servicio exista.
-    if (!planSeleccionado) {
-        return;
-    }
+/* ---------- 8. Acciones sobre el array ---------- */
 
+function validarNuevoServicio(nombre, precio) {
+  if (nombre.length < 3) return "El nombre debe tener al menos 3 caracteres.";
+  if (servicios.some((s) => normalizar(s.nombre) === normalizar(nombre))) {
+    return "Ya existe un servicio con ese nombre.";
+  }
+  if (!Number.isFinite(precio) || precio < 1000 || precio > 1000000) {
+    return "Escribe un precio entre $1.000 y $1.000.000.";
+  }
+  return "";
+}
 
-    // Accion 1: Agregar o quitar de favoritos.
-    if (accion === "favorito") {
+function agregarServicio(evento) {
+  evento.preventDefault();
 
-        planSeleccionado.favorito = !planSeleccionado.favorito;
+  const nombre = inputNombre.value.trim();
+  const precio = Number(inputPrecio.value);
+  const error = validarNuevoServicio(nombre, precio);
 
-        mostrarMensaje(
-            planSeleccionado.favorito
-                ? "Servicio agregado a favoritos."
-                : "Servicio retirado de favoritos."
-        );
-    }
+  if (error) {
+    mostrarErrorFormulario(error);
+    mostrarToast("Revisa los datos del formulario.", "error");
+    return;
+  }
 
+  const nuevo = {
+    id: siguienteId++,
+    nombre,
+    categoria: inputCategoria.value,
+    detalle: inputDetalle.value.trim() || "Servicio personalizado CONECTA.",
+    precio: Math.round(precio),
+    contratado: false,
+  };
+  servicios.unshift(nuevo);
 
-    // Accion 2: Cambiar disponibilidad.
-    else if (accion === "estado") {
+  // Se limpian los filtros para que el nuevo servicio siempre quede visible.
+  categoriaActiva = "Todos";
+  textoBusqueda = "";
+  buscador.value = "";
+  marcarFiltroActivo();
 
-        planSeleccionado.disponible = !planSeleccionado.disponible;
+  formulario.reset();
+  ocultarErrorFormulario();
+  actualizarVista(nuevo.id);
+  mostrarToast(`"${nuevo.nombre}" se agregó al catálogo.`, "exito");
+  inputNombre.focus();
+}
 
-        mostrarMensaje(
-            planSeleccionado.disponible
-                ? "El servicio ahora está disponible."
-                : "El servicio ahora no está disponible."
-        );
-    }
+function alternarContratacion(id) {
+  const servicio = servicios.find((s) => s.id === id);
+  if (!servicio) return;
 
+  servicio.contratado = !servicio.contratado;
+  actualizarVista();
+  mostrarToast(
+    servicio.contratado
+      ? `"${servicio.nombre}" se agregó a tu plan.`
+      : `"${servicio.nombre}" se quitó de tu plan.`,
+    servicio.contratado ? "exito" : "info"
+  );
+}
 
-    // Accion 3: Eliminar un servicio.
-    else if (accion === "eliminar") {
+function eliminarServicio(id) {
+  const indice = servicios.findIndex((s) => s.id === id);
+  if (indice === -1) return;
 
-        // filter() crea un nuevo array excluyendo el servicio.
-        planes = planes.filter(plan => plan.id !== id);
+  const [eliminado] = servicios.splice(indice, 1);
+  ultimoEliminado = { servicio: eliminado, indice };
+  actualizarVista();
+  mostrarToast(`"${eliminado.nombre}" se eliminó del catálogo.`, "peligro", { clave: "deshacer", texto: "Deshacer" });
+}
 
-        mostrarMensaje("El servicio fue eliminado del catálogo.");
-    }
+function deshacerEliminacion() {
+  if (!ultimoEliminado) return;
 
-    // Actualiza la información después de cualquier acción.
-    actualizarEstadisticas();
-    renderizarPlanes();
-});
+  const { servicio, indice } = ultimoEliminado;
+  servicios.splice(indice, 0, servicio);
+  ultimoEliminado = null;
+  actualizarVista(servicio.id);
+  mostrarToast(`"${servicio.nombre}" se restauró.`, "exito");
+}
 
+function vaciarPlan() {
+  servicios.forEach((s) => (s.contratado = false));
+  actualizarVista();
+  mostrarToast("Tu plan quedó vacío.", "info");
+}
 
-/* Eventos de busqueda y filtrado
-   Los resultados se actualizan mientras el usuario escribe
-   o modifica las opciones de los selectores.*/
-
-// Búsqueda en tiempo real mediante el evento input.
-buscador.addEventListener("input", renderizarPlanes);
-
-// Filtrado por categoría.
-filtroCategoria.addEventListener("change", renderizarPlanes);
-
-// Filtrado por disponibilidad.
-filtroEstado.addEventListener("change", renderizarPlanes);
-
-
-/* Limpieza de filtros
-   Restablece los controles y muestra nuevamente el catálogo.*/
 function limpiarFiltros() {
-
-    buscador.value = "";
-    filtroCategoria.value = "todos";
-    filtroEstado.value = "todos";
-
-    renderizarPlanes();
-
-    mostrarMensaje("Se restablecieron los filtros.");
+  categoriaActiva = "Todos";
+  textoBusqueda = "";
+  buscador.value = "";
+  marcarFiltroActivo();
+  renderizarServicios();
 }
 
+/* ---------- 9. Eventos ---------- */
 
-// Evento del botón para limpiar los filtros.
-botonLimpiarFiltros.addEventListener("click", limpiarFiltros);
+function registrarEventos() {
+  // Click en los botones de cada tarjeta (delegación de eventos)
+  contenedor.addEventListener("click", (evento) => {
+    const boton = evento.target.closest("button[data-accion]");
+    if (!boton) return;
 
+    const tarjeta = boton.closest(".tarjeta");
+    const id = tarjeta ? Number(tarjeta.dataset.id) : null;
 
-// Evento del botón del estado vacío.
-botonReiniciarBusqueda.addEventListener("click", limpiarFiltros);
+    if (boton.dataset.accion === "alternar") alternarContratacion(id);
+    if (boton.dataset.accion === "eliminar") eliminarServicio(id);
+    if (boton.dataset.accion === "limpiar-filtros") limpiarFiltros();
+  });
 
+  // Click en "Mi plan"
+  listaPlan.addEventListener("click", (evento) => {
+    const boton = evento.target.closest('button[data-accion="quitar"]');
+    if (boton) alternarContratacion(Number(boton.dataset.id));
+  });
+  botonVaciar.addEventListener("click", vaciarPlan);
 
-/* Eventos de teclado
-   Atajos para mejorar la experiencia de navegación.*/
+  // Click en los filtros de categoría
+  filtros.addEventListener("click", (evento) => {
+    const boton = evento.target.closest("button[data-categoria]");
+    if (!boton) return;
+    categoriaActiva = boton.dataset.categoria;
+    marcarFiltroActivo();
+    renderizarServicios();
+  });
 
+  // Teclado: búsqueda en tiempo real mientras se escribe
+  const filtrarPorTexto = () => {
+    textoBusqueda = buscador.value;
+    renderizarServicios();
+  };
+  buscador.addEventListener("keyup", filtrarPorTexto);
+  buscador.addEventListener("input", filtrarPorTexto);
 
-document.addEventListener("keydown", function(evento) {
-
-    // Detecta Ctrl + K o Command + K en Mac.
-    if (
-        (evento.ctrlKey || evento.metaKey) &&
-        evento.key.toLowerCase() === "k"
-    ) {
-        evento.preventDefault();
-
-        // Lleva el cursor al buscador.
-        buscador.focus();
-
-        // Selecciona el texto que ya esté escrito.
-        buscador.select();
+  // Teclado: atajos Ctrl/Cmd + K para buscar y Escape para limpiar
+  document.addEventListener("keydown", (evento) => {
+    if ((evento.ctrlKey || evento.metaKey) && evento.key.toLowerCase() === "k") {
+      evento.preventDefault();
+      buscador.focus();
+      buscador.select();
     }
-
-    // Detecta Escape para limpiar la búsqueda.
-    if (
-        evento.key === "Escape" &&
-        document.activeElement === buscador
-    ) {
-        buscador.value = "";
-        renderizarPlanes();
-        buscador.blur();
+    if (evento.key === "Escape" && document.activeElement === buscador) {
+      buscador.value = "";
+      filtrarPorTexto();
     }
+  });
 
-});
+  // Formulario: el botón "Agregar" dispara el evento submit
+  formulario.addEventListener("submit", agregarServicio);
+  formulario.addEventListener("input", ocultarErrorFormulario);
 
-
-/* Limpieza de errores al editar el formulario
-   Quita el error de un campo cuando el usuario lo modifica. */
-
-[campoNombre, campoTipo, campoPrecio, campoDescripcion].forEach(campo => {
-
-    campo.addEventListener("input", function() {
-
-        const grupo = campo.closest(".form-group");
-        const error = document.getElementById(`error-${campo.id}`);
-
-        grupo.classList.remove("invalid");
-        error.textContent = "";
-    });
-
-    campo.addEventListener("change", function() {
-
-        const grupo = campo.closest(".form-group");
-        const error = document.getElementById(`error-${campo.id}`);
-
-        grupo.classList.remove("invalid");
-        error.textContent = "";
-    });
-});
-
-
-/*  Inicializaciones del simulador
-   Estas funciones se ejecutan al cargar el archivo. */
-
-function iniciarAplicacion() {
-
-    // Calcula las estadísticas iniciales.
-    actualizarEstadisticas();
-
-    // Dibuja las tarjetas iniciales.
-    renderizarPlanes();
+  // Botón "Deshacer" dentro de los avisos
+  contenedorToasts.addEventListener("click", (evento) => {
+    const boton = evento.target.closest('button[data-accion="deshacer"]');
+    if (!boton) return;
+    deshacerEliminacion();
+    boton.closest(".toast").remove();
+  });
 }
 
-// Ejecuta la aplicación.
-iniciarAplicacion();
+/* ---------- 10. Inicio ---------- */
+
+registrarEventos();
+actualizarVista();

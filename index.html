@@ -1,376 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description"
-    content="CONECTA: plataforma de administracion de servicios de telecomunicaciones.">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="CONECTA: simulador de planes de internet, móvil y televisión. Arma tu plan y conoce tu total mensual." />
+  <title>CONECTA · Simulador de planes de telecomunicaciones</title>
 
-    <title>CONECTA | Gestion de servicios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet" />
 
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="js/main.js" defer></script>
 </head>
 <body>
-
-// Navegacion Lateral
-
-<aside class="sidebar">
-
-    <a href="#" class="brand">
-        <span class="brand-icon">
-            <i class="fa-solid fa-tower-broadcast"></i>
-        </span>
-
-        <span class="brand-name">CONECTA<span>.</span>
-    </a>
-
-    <div class="sidebar-label">MENU PRINCIPAL</div>
-
-    <nav class="sidebar-nav">
-        <a href="#inicio" class="nav-link active">
-            <i class="fa-solid fa-house"></i>
-            <span>Resumen</span>
-        </a>
-
-        <a href="#catalogo" class="nav-link">
-            <i class="fa-solid fa-layer-group"></i>
-            <span>Servicios</span>
-        </a>
-
-        <a href="#nuevo-plan" class="nav-link">
-            <i class="fa-solid fa-circle-plus"></i>
-            <span>Nuevo servicio</span>
-        </a>
-
-    </nav>
-
-    <div class="sidebar-bottom">
-        <div class="sidebar-status">
-            <span class="status-indicator"></span>
-            Sistema operativo
-        </div>
-
-        <p>Panel de administracion</p>
-        <smalll>Version 1.0.0</smalll>
+  <header class="cabecera">
+    <div class="cabecera__interior">
+      <p class="cabecera__marca">
+        <svg class="cabecera__icono" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+          <circle cx="16" cy="25" r="3" fill="currentColor" />
+          <path d="M9 18a10 10 0 0 1 14 0M4 13a17 17 0 0 1 24 0" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+        </svg>
+        CONECTA
+      </p>
+      <h1 class="cabecera__titulo">Arma tu plan de telecomunicaciones</h1>
+      <p class="cabecera__lema">Elige internet, móvil y televisión, y mira tu total mensual al instante.</p>
     </div>
+  </header>
 
-</aside>
-
-// Contenido Principal. 
-
-<main class="main-content" id="inicio">
-
-    //Encabezado superior
-    <header class="topbar">
-        <div>
-            <p class="topbar-subtitle">Plataforma de gestion</p>
-            <h1>Panel de servicios</h1>
-        </div>
-
-        <div class="admin-profile">
-            <div class="profile-avatar">A</div>
-
-            <div>
-                <strong>Administrador</strong>
-                <span>Cuenta Principal</span>
-            </div>
-        </div>
-    </header>
-
-    // Banner de Bienvenida
-    <section class="welcome-banner">
-
-        <div class="welcome-content">
-            <span class="welcome-tag">CENTRO DE OPERACIONES</span>
-
-            <h2>Conectamos personas,<br>acercamos posibilidades.</h2>
-
-            <p>
-                Administra, consulta y organiza tu catalogo de servicios 
-                de telecomunicaciones desde un solo lugar.
-            </p>
-
-            <a href="#catalago" class="banner-button">
-                Explorar Servicios
-                <i class="fa-solid fa-arrow-right"></i>
-            </a>
-        </div>
-
-        <div class="banner-decoration">
-            <i class="fa-solid fa-tower-broadcast"></i>
-            <span class="signal signal-one"></span>
-            <span class="signal signal-two"></span>
-            <span class="signal signal-three"></span>
-        </div>
-
+  <main class="pagina">
+    <section class="estadisticas" aria-label="Resumen general">
+      <article class="estadistica">
+        <p class="estadistica__valor" id="stat-total">0</p>
+        <p class="estadistica__etiqueta">Servicios en el catálogo</p>
+      </article>
+      <article class="estadistica">
+        <p class="estadistica__valor" id="stat-contratados">0</p>
+        <p class="estadistica__etiqueta">En tu plan</p>
+      </article>
+      <article class="estadistica">
+        <p class="estadistica__valor" id="stat-mensual">$0</p>
+        <p class="estadistica__etiqueta">Total mensual de tu plan</p>
+      </article>
+      <article class="estadistica">
+        <p class="estadistica__valor" id="stat-promedio">$0</p>
+        <p class="estadistica__etiqueta">Precio promedio del catálogo</p>
+      </article>
     </section>
 
-    // Tarjetas de estadisticas
-    // Los valores se actualizan desde JavaScript.
-<section class="statics-grid" aria-label="Estadisticas del catalogo">
-
-    <article class="stat-card">
-        <div class="stat-icon purple">
-            <i class="fa-solid fa-boxes-stacked"></i>
+    <div class="contenido">
+      <section class="catalogo" aria-labelledby="titulo-catalogo">
+        <div class="catalogo__cabecera">
+          <h2 id="titulo-catalogo">Catálogo de servicios</h2>
+          <p class="contador" id="contador" aria-live="polite"></p>
         </div>
 
-        <div>
-            <p>Total de servicios</p>
-            <h3 id="total-planes">0</h3>
-            <span>Servicios registrados</span>
-        </div>
-    </article>
+        <div class="herramientas">
+          <div class="buscador">
+            <label for="buscador" class="visualmente-oculto">Buscar servicio</label>
+            <input id="buscador" type="search" placeholder="Buscar por nombre o detalle…" autocomplete="off" />
+            <kbd class="buscador__atajo" aria-hidden="true">Ctrl K</kbd>
+          </div>
 
-    <article class="stat-card">
-        <div class="stat-icon green">
-            <i class="fa-solid fa-circle-check"></i>
-        </div>
-
-        <div>
-            <p>Disponible</p>
-            <h3 id="planes-disponibles">0</h3>
-            <span>Listos para contratar</span>
-        </div>
-    </article>
-
-    <article class="stat-card">
-        <div class="stat-icon orange">
-            <i class="fa-solid fa-clock"></i>
+          <div id="filtros" class="filtros" role="group" aria-label="Filtrar por categoría">
+            <button type="button" class="filtro" data-categoria="Todos" aria-pressed="true">Todos</button>
+            <button type="button" class="filtro" data-categoria="Internet" aria-pressed="false">Internet</button>
+            <button type="button" class="filtro" data-categoria="Móvil" aria-pressed="false">Móvil</button>
+            <button type="button" class="filtro" data-categoria="TV" aria-pressed="false">TV</button>
+            <button type="button" class="filtro" data-categoria="Combo" aria-pressed="false">Combo</button>
+          </div>
         </div>
 
-        <div>
-            <p>No disponibles</p>
-            <h3 id="planes-no-disponibles">0</h3>
-            <span>Temporalmente inactivos</span>
-        </div>
-    </article>
+        <div id="contenedor-servicios" class="servicios"></div>
+      </section>
 
-    <article class="stat-card">
-        <div class="stat-icon blue">
-            <i class="fa-solid fa-star"></i>
-        </div>
-        <div>
-            <p>Favoritos</p>
-            <h3 id="total-favoritos">0</h3>
-            <span>Servicios Destacados</span>
-        </div>
-    </article>
-</section>
+      <aside class="lateral">
+        <section class="panel" aria-labelledby="titulo-form">
+          <h2 id="titulo-form">Agregar un servicio</h2>
 
-// Catalogo y Herramientas de Busqueda
-<section class="catalog-section" id="catalogo">
+          <form id="form-servicio" class="formulario" novalidate>
+            <div class="campo">
+              <label for="input-nombre">Nombre del servicio</label>
+              <input id="input-nombre" type="text" maxlength="40" placeholder="Ej: Fibra Hogar 500" autocomplete="off" />
+            </div>
 
-    <div class="section-heading">
-        <div>
-            <span class="section-eyebrow">ADMINISTRACION</span>
-            <h2>Catalogo de servicios</h2>
-            <p>Consulta y administra los planes disponibles.</p>
-        </div>
+            <div class="campo">
+              <label for="input-categoria">Categoría</label>
+              <select id="input-categoria">
+                <option value="Internet">Internet</option>
+                <option value="Móvil">Móvil</option>
+                <option value="TV">TV</option>
+                <option value="Combo">Combo</option>
+              </select>
+            </div>
 
-        <a href="#nuevo-plan" class="primary-button">
-            <i class="fa-solid fa-plus"></i>
-            Agregar servicio
-        </a>
+            <div class="campo">
+              <label for="input-precio">Precio mensual (COP)</label>
+              <input id="input-precio" type="number" min="1000" max="1000000" step="100" placeholder="Ej: 99900" />
+            </div>
+
+            <div class="campo">
+              <label for="input-detalle">Detalle (opcional)</label>
+              <input id="input-detalle" type="text" maxlength="90" placeholder="Ej: 500 Mbps con WiFi 6" autocomplete="off" />
+            </div>
+
+            <p id="form-error" class="formulario__error" role="alert" hidden></p>
+
+            <button type="submit" id="btn-agregar" class="boton boton--bloque">+ Agregar al catálogo</button>
+          </form>
+        </section>
+
+        <section class="panel" aria-labelledby="titulo-plan">
+          <h2 id="titulo-plan">Mi plan</h2>
+
+          <p id="plan-vacio" class="plan__vacio">Aún no has agregado servicios a tu plan.</p>
+          <ul id="lista-plan" class="plan__lista"></ul>
+
+          <dl class="plan__totales">
+            <div><dt>Subtotal</dt><dd id="plan-subtotal">$0</dd></div>
+            <div id="plan-fila-descuento" hidden><dt>Descuento (10%)</dt><dd id="plan-descuento">$0</dd></div>
+            <div class="plan__total"><dt>Total mensual</dt><dd id="plan-total">$0</dd></div>
+          </dl>
+
+          <p id="plan-ayuda" class="plan__ayuda"></p>
+
+          <button type="button" id="btn-vaciar" class="boton boton--borde boton--bloque">Vaciar mi plan</button>
+        </section>
+      </aside>
     </div>
+  </main>
 
-//  Barra de busqueda y filtros
-<div class="filters-panel">
+  <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
 
-    <div class="search-box">
-        <i class="fa-solid fa-magnifying-glass"></i>
-
-        <input
-        type="search"
-        id="buscador"
-        placeholder="Buscar un servicio..."
-        aria-label="Buscar servicios">
-
-        <span class="shortcut">Ctrl + k</span>
-    </div>
-
-
-    <select id="filtro-categoria" aria-label="Filtrar por categoria">
-        <option value="todos">Todas las categorias</option>
-        <option value="Internet">Internet</option>
-        <option value="Telefonia">Telefonia</option>
-        <option value="Television">Television</option>
-        <option value="Combo">Combos</option>
-    </select>
-
-    <select id="filtro-estado" aria-label="Filtrar por disponibilidad">
-        <option value="todos">Todos los estados</option>
-        <option value="disponible">Disponible</option>
-        <option value="no-disponible">No disponible</option>
-    </select>
-
-    <button type="button" class="clear-button" id="limpiar-filtros">
-        <i class="fa-solid fa-rotate-left"></i>Limpiar
-    </button>
-
-</div>
-
-//Informacion de resultados
-
-<div class="results-header">
-    <p id="contador-resultados">Mostrando servicios</p>
-
-    <span class="catalog-indicator">
-        <span></span>
-        Catalogo actualizado
-    </span>
-</div>
-
-// Contenedor donde JavaScript dibuja las Tarjetas
-<div class="plans-grid" id="contenedor-planes">
-
-    // Las tarjetas se generan dinamicamente desde main.js
-</div>
-
-// Mensaje cuando no existen resultados
-<div class="empty-state" id="estado-vacio" hidden>
-    <div class="empty-icon">
-        <i class="fa-solid fa-folder-open"></i>
-    </div>
-
-    <h3>No encontramos servicios</h3>
-
-    <p>Prueba con otra busqueda o modifica los filtros.</p>
-
-    <button type="button" id="reiniciar-busqueda" class="secondary-button">
-        Ver todos los servicios
-    </button>
-</div>
-
-</section>
-
-// Formulario para registrar nuevos Servicios
-<section class="form-section" id="nuevo-plan">
-
-    <div class="section-heading">
-        <div>
-            <span class="section-eyebrow">NUEVO REGISTRO</span>
-            <h2>Agregar un servicio</h2>
-            <p>Completa la informacion para incluir un nuevo plan.</p>
-        </div>
-
-        <div class="from-heading-icon">
-            <i class="fa-solid fa-file-circle-plus"></i>
-        </div>
-    </div>
-
-    <form id="formulario-plan" novalidate>
-
-        <div class="form-grid">
-
-// Nombre del servicio
-
-<div class="form-group">
-    <label for="nombre">Nombre del servicio</label>
-
-    <input
-    type="text"
-    id="nombre"
-    name="nombre"
-    placeholder="Fibra Premium"
-    maxlength="45">
-
-    <small class="field-error" id="error-nombre"></small>
-</div>
-
-// Categoria del servicio
-
-<div class="form-group">
-    <label for="tipo">Categoria</label>
-
-    <select id="tipo" name="tipo">
-        <option value="">Selecciona una categoria</option>
-        <option value="Internet">Internet</option>
-        <option value="Telefonia">Telefonia</option>
-        <option value="Television">Television</option>
-        <option value="Combo">Combo</option>
-    </select>
-
-    <small class="field-error" id="error-tipo"></small>
-</div>
-
-// Precio mensual
-<div class="form-group">
-    <label for="precio">Precio mensual (COP)</label>
-
-    <input
-    type="number"
-    id="precio"
-    name="precio"
-    placeholder="79900"
-    min="1000"
-    max="10000000">
-
-    <small class="field-error" id="error-precio"></small>
-</div>
-
-// Descripcion del servicio
-<div class="form-group">
-    <label for="descripcion">Descripcion</label>
-
-    <input
-    type="text"
-    id="descripcion"
-    name="descripcion"
-    placeholder="Internet de alta velocidad"
-    maxlength="100">
-
-    <small class="field-error" id="error-descripcion"></small>
-</div>
-        </div>
-
-
-        // Estado inicial del servicio
-
-        <div class="availability-option">
-            <label class="checkbox-label">
-                <input type="checkbox" id="disponible" checked>
-                <span class="custom-checkbox"></span>
-                Registrar como servicio disponible
-            </label>
-        </div>
-
-        // Botones del formulario-plan
-        <div class="form-actions">
-            <button type="reset" class="secondary-button" id="cancelar-formulario">
-                Limpiar campos
-            </button>
-
-            <button type="submit" class="primary-button">
-                <i class="fa-solid fa-plus"></i>
-                Registrar servicio
-            </button>
-        </div>
-    </form>
-</section>
-
-<footer class="footer">
-    <p> 2026 CONECTA. Panel de gestion de telecomunicaciones.</p>
-    <span>Desarrollado por Juanita Callejas</span>
-</footer>
-
-</main>
-
-// Mensaje de feedback
-
-<div class="toast" id="mensaje-toast" role="status" aria-live="polite">
-    <i class="fa-solid fa-circle-check">
-    </i>
-            <span id="texto-toast"></span>
-</div>
-
-// Archivo JavaScript
-<script src="js/main.js"></script>
-    
+  <footer class="pie">
+    <p>CONECTA · Simulador académico. Los planes y precios son ilustrativos.</p>
+  </footer>
 </body>
 </html>
